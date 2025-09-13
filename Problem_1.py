@@ -29,7 +29,7 @@ All elements of candidates are distinct.
 1 <= target <= 40
 
 Solution:
-1. Recursion:
+1. Backtracking using 0/1 recursion:
 case 0: don't pick the number at the ith index (array[i]), and do a recursion on the next number at index i + 1 (array[i+1])
 
 case 1: pick the number at the ith index (array[i]), and do a recursion on the same number (array[i]) since repetitions of a number are allowed
@@ -37,11 +37,18 @@ case 1: pick the number at the ith index (array[i]), and do a recursion on the s
 Let K = target sum/min(array), then
 Time is 2^K because for every element in the array, the tree splits into two subtrees (dont pick subtree and pick subtree)
 Space is K because the recursion depth is log 2^K  = K
+https://www.youtube.com/watch?v=jfEB9VIr7Jw
+
+Time: O(2^K), Space: O(K)
+
+
+2. Backtracking using for-loop recursion:
+https://www.youtube.com/watch?v=5zITD4fQc0Q
 
 Time: O(2^K), Space: O(K)
 '''
 
-def combinationSum(arr, target_sum):
+def combinationSum_1(arr, target_sum):
     ''' Time: O(2^K), Space: O(log 2^K) = O(K), K = target sum/min(array) '''
     def recurse(arr, curr_sum, target_sum, i, path):
         if curr_sum == target_sum:
@@ -72,20 +79,51 @@ def combinationSum(arr, target_sum):
     recurse(arr, 0, target_sum, 0, path)
     return subsets
 
+
+def combinationSum_2(arr, target_sum):
+    def recurse(arr, curr_sum, target_sum, i, path):
+        if curr_sum == target_sum:
+            subsets.append(path.copy())
+            return #True
+        elif curr_sum > target_sum:
+            return #False
+
+        if i >= N:
+            return #False
+
+        for j in range(i, N):
+            path.append(arr[j])
+            recurse(arr, curr_sum + arr[j], target_sum, j, path)
+            path.pop()
+
+
+    if not arr:
+        return []
+    N = len(arr)
+    path = []
+    subsets = []
+    recurse(arr, 0, target_sum, 0, path)
+    return subsets
+
+
 def run_combinationSum():
-    tests = [([10,12,15,6,19,20], 16, [[10,6]]),
-             ([2,3,6,7], 7, [[2,2,3],[7]]),
-             ([2,3,5], 8, [[2,2,2,2],[2,3,3],[3,5]]),
-             ([2], 1, []),
+    tests = [ ([2,3,6,7], 7, [[2,2,3],[7]]),
+              ([10,12,15,6,19,20], 16, [[10,6]]),
+              ([2,3,5], 8, [[2,2,2,2],[2,3,3],[3,5]]),
+              ([2], 1, []),
     ]
     for test in tests:
         arr, target_sum, ans = test[0], test[1], test[2]
-        subsets = combinationSum(arr, target_sum)
-        a = [sorted(l) for l in sorted(ans)]
-        b = [sorted(l) for l in sorted(subsets)]
-        print(f"\nArray = {arr}")
-        print(f"Target Sum = {target_sum}")
-        print(f"Combinations = {subsets}")
-        print(f"Pass: {a == b}")
+        for method in ['01-backtrack', 'for-loop-backtrack']:
+            if method == '01-backtrack':
+                subsets = combinationSum_1(arr, target_sum)
+            elif method == 'for-loop-backtrack':
+                subsets = combinationSum_2(arr, target_sum)
+            a = [sorted(l) for l in sorted(ans)]
+            b = [sorted(l) for l in sorted(subsets)]
+            print(f"\nArray = {arr}")
+            print(f"Target Sum = {target_sum}")
+            print(f"{method}: Combinations = {subsets}")
+            print(f"Pass: {a == b}")
 
 run_combinationSum()
